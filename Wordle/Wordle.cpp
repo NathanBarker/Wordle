@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <ctime>
 #include <cctype>
 #include <fstream>
@@ -5,6 +6,8 @@
 
 #include "FileGetter.h"
 #include "Wordle.h"
+
+#include <vector>
 
 int main()
 {
@@ -62,6 +65,7 @@ void WordleGame::GameLoop(const string& targetWord)
 {
     // TODO: Stop while loop if the player has 0 attempts left or gets the correct word
 
+    cout << targetWord << endl;
     while (getGameIsActive())
     {
         cout << "Current Guessed Letters:" << endl;
@@ -77,13 +81,63 @@ void WordleGame::GameLoop(const string& targetWord)
         }
         cout << endl;
 
-        bool userInputtedValidLetter = false;
-        char userInputtedCharacter;
-        while (!userInputtedValidLetter)
+        bool userInputtedValidWord = false;
+        string userInputtedWord;
+
+        while (!userInputtedValidWord)
         {
-            cout << "Enter a valid letter" << endl;
-            cin >> userInputtedCharacter;
-            userInputtedValidLetter = isalpha(toupper(userInputtedCharacter)) ? true : false;
+            cout << "Enter a 5 letter word" << endl;
+            cin >> userInputtedWord;
+
+            if (userInputtedWord.size() != 5) continue;
+
+            userInputtedValidWord = true;
+            for (const char character : userInputtedWord)
+            {
+                if (!isalpha(toupper(character)))
+                {
+                    userInputtedValidWord = false;
+                    break;
+                }
+            }
+        }
+
+        for (int i = 0; i < WORD_SIZE; i++)
+        {
+            setGuessedCharToArray(i, userInputtedWord[i]);
+        }
+        cout << endl;
+
+        for (int i = 0; i < static_cast<int>(targetWord.size()); i++)
+        {
+            WordCharacterData data{};
+            data.character = targetWord[i];
+            data.guessed = false;
+            data.position = i;
+            targetWordData.push_back(data);
+        }
+
+        for (int i = 0; i < WORD_SIZE; i++)
+        {
+            for (int j = 0; j < WORD_SIZE; j++)
+            {
+                if (getGuessedCharFromArray(i) == targetWordData[j].character && i == targetWordData[j].position)
+                // same letter and same position
+                {
+                    targetWordData[j].guessed = true;
+                    setUserScoreCharToArray(i, 'G');
+                    break;
+                }
+
+                if (getGuessedCharFromArray(i) == targetWordData[j].character && !targetWordData[j].guessed)
+                {
+                    targetWordData[j].guessed = true;
+                    setUserScoreCharToArray(i, 'A');
+                    break;
+                }
+
+                else { setUserScoreCharToArray(i, 'R'); }
+            }
         }
     }
 }
