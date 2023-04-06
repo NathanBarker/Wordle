@@ -124,19 +124,27 @@ void WordleGame::GameLoop(const string& targetWord)
                 if (getGuessedCharFromArray(i) == targetWordData[j].character && i == targetWordData[j].position)
                 // same letter and same position
                 {
+                    if (targetWordData[j].guessed)
+                    {
+                        for (int r = 0;  r < WORD_SIZE; r++)
+                        {
+                            if (getUserScoreCharFromArray(r) == 'A')
+                            {
+                                setUserScoreCharToArray(r,'R');
+                            }
+                        }
+                    }
                     targetWordData[j].guessed = true;
                     setUserScoreCharToArray(i, 'G');
                     break;
                 }
-
                 if (getGuessedCharFromArray(i) == targetWordData[j].character && !targetWordData[j].guessed)
                 {
                     targetWordData[j].guessed = true;
                     setUserScoreCharToArray(i, 'A');
                     break;
                 }
-
-                else { setUserScoreCharToArray(i, 'R'); }
+                setUserScoreCharToArray(i, 'R');
             }
         }
     }
