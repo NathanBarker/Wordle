@@ -1,13 +1,12 @@
 #include <algorithm>
 #include <ctime>
-#include <cctype>
 #include <fstream>
 #include <iostream>
+#include <regex>
+#include <vector>
 
 #include "FileGetter.h"
 #include "Wordle.h"
-
-#include <vector>
 
 int main()
 {
@@ -69,17 +68,10 @@ void WordleGame::GameLoop(const string& targetWord)
     while (getGameIsActive())
     {
         cout << "Current Guessed Letters:" << endl;
-        for (int i = 0; i < WORD_SIZE; i++)
-        {
-            cout << " [ " << getGuessedCharFromArray(i) << " ] ";
-        }
-        cout << endl;
+        PrintResults(lettersGuessed);
+
         cout << "Results:" << endl;
-        for (int i = 0; i < WORD_SIZE; i++)
-        {
-            cout << " [ " << getUserScoreCharFromArray(i) << " ] ";
-        }
-        cout << endl;
+        PrintResults(userScoreCard);
 
         bool userInputtedValidWord = false;
         string userInputtedWord;
@@ -89,24 +81,14 @@ void WordleGame::GameLoop(const string& targetWord)
             cout << "Enter a 5 letter word" << endl;
             cin >> userInputtedWord;
 
-            if (userInputtedWord.size() != 5) continue;
-
-            userInputtedValidWord = true;
-            for (const char character : userInputtedWord)
-            {
-                if (!isalpha(toupper(character)))
-                {
-                    userInputtedValidWord = false;
-                    break;
-                }
-            }
+            std::regex wordRegex("[a-zA-Z]{5}");
+            userInputtedValidWord = regex_match(userInputtedWord, wordRegex) ? true : false;
         }
 
         for (int i = 0; i < WORD_SIZE; i++)
         {
             setGuessedCharToArray(i, userInputtedWord[i]);
         }
-        cout << endl;
 
         for (int i = 0; i < static_cast<int>(targetWord.size()); i++)
         {
@@ -126,13 +108,8 @@ void WordleGame::GameLoop(const string& targetWord)
                 {
                     if (targetWordData[j].guessed)
                     {
-                        for (int r = 0;  r < WORD_SIZE; r++)
-                        {
-                            if (getUserScoreCharFromArray(r) == 'A')
-                            {
-                                setUserScoreCharToArray(r,'R');
-                            }
-                        }
+                        auto it = find(userScoreCard.begin(), userScoreCard.end(), 'A');
+                        if (it != userScoreCard.end()) *it = 'R';
                     }
                     targetWordData[j].guessed = true;
                     setUserScoreCharToArray(i, 'G');
@@ -148,4 +125,13 @@ void WordleGame::GameLoop(const string& targetWord)
             }
         }
     }
+}
+
+void WordleGame::PrintResults(const vector<char>& letters)
+{
+    for (int i = 0; i < WORD_SIZE; i++)
+    {
+        cout << " [ " << letters[i] << " ] ";
+    }
+    cout << endl;
 }

@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include <string>
 #include <vector>
 
@@ -18,9 +19,9 @@ class WordleGame
 private:
     const int attempts = 6;
     bool gameIsActive = false;
-    
-    char lettersGuessed[5] = {' ', ' ', ' ', ' ', ' ',};
-    char userScoreCard[5] = {' ', ' ', ' ', ' ', ' ',};
+
+    vector<char> lettersGuessed = {' ', ' ', ' ', ' ', ' ',};
+    vector<char> userScoreCard = {' ', ' ', ' ', ' ', ' ',};
 
     vector<WordCharacterData> targetWordData;
 
@@ -64,4 +65,5 @@ public:
 
     string SetTargetWord(const string& file) const;
     void GameLoop(const string& targetWord);
+    static void PrintResults(const vector<char>& letters);
 };
