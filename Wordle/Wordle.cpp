@@ -64,31 +64,52 @@ void WordleGame::GameLoop(const string& targetWord)
 {
     // TODO: Stop while loop if the player has 0 attempts left or gets the correct word
 
-    cout << targetWord << endl;
     while (getGameIsActive())
     {
+        bool hasUserWon = true;
+        for (int i = 0; i < WORD_SIZE; i++)
+        {
+            if (getUserScoreCharFromArray(i) != 'G')
+            {
+                hasUserWon = false;
+            }
+        }
+
+        if (GetAttempts() == 0 || hasUserWon)
+        {
+            PrintGameResults(targetWord, string(lettersGuessed.begin(), lettersGuessed.end()));
+            return;
+        }
+        cout << targetWord << endl;
+
         cout << "Current Guessed Letters:" << endl;
         PrintResults(lettersGuessed);
 
         cout << "Results:" << endl;
         PrintResults(userScoreCard);
 
-        bool userInputtedValidWord = false;
+        bool isUserInputValid = false;
         string userInputtedWord;
 
-        while (!userInputtedValidWord)
+        while (!isUserInputValid)
         {
             cout << "Enter a 5 letter word" << endl;
             cin >> userInputtedWord;
 
-            std::regex wordRegex("[a-zA-Z]{5}");
-            userInputtedValidWord = regex_match(userInputtedWord, wordRegex) ? true : false;
+            regex wordRegex("[a-zA-Z]{5}");
+            isUserInputValid = regex_match(userInputtedWord, wordRegex) ? true : false;
+
+            if (!isUserInputValid) cout << "Invalid input" << endl;
         }
+
+        ReduceAttempts();
 
         for (int i = 0; i < WORD_SIZE; i++)
         {
             setGuessedCharToArray(i, userInputtedWord[i]);
         }
+
+        targetWordData.clear();
 
         for (int i = 0; i < static_cast<int>(targetWord.size()); i++)
         {
@@ -131,7 +152,24 @@ void WordleGame::PrintResults(const vector<char>& letters)
 {
     for (int i = 0; i < WORD_SIZE; i++)
     {
+        if (toupper(letters[i]) == 32) continue;
         cout << " [ " << letters[i] << " ] ";
     }
     cout << endl;
+}
+
+void WordleGame::PrintGameResults(const string& targetWord, const string& userGuessed)
+{
+    if (targetWord == userGuessed)
+    {
+        cout << "You got the secret word!" << endl;
+        cout << "Your word" << " " << userGuessed << endl;
+        cout << "Target word" << " " << targetWord << endl;
+    }
+    else
+    {
+        cout << "You failed :(" << endl;
+        cout << "Your word" << userGuessed << endl;
+        cout << "Target word" << targetWord << endl;
+    }
 }

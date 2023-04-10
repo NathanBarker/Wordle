@@ -17,7 +17,7 @@ struct WordCharacterData
 class WordleGame
 {
 private:
-    const int attempts = 6;
+    int attempts = 6;
     bool gameIsActive = false;
 
     vector<char> lettersGuessed = {' ', ' ', ' ', ' ', ' ',};
@@ -31,6 +31,11 @@ public:
     int GetAttempts() const
     {
         return attempts;
+    }
+
+    void ReduceAttempts()
+    {
+        attempts--;
     }
 
     bool getGameIsActive() const
@@ -66,4 +71,5 @@ public:
     string SetTargetWord(const string& file) const;
     void GameLoop(const string& targetWord);
     static void PrintResults(const vector<char>& letters);
+    static void PrintGameResults(const string& targetWord, const string& userGuessed);
 };
