@@ -7,17 +7,31 @@
 
 #include "FileGetter.h"
 #include "Wordle.h"
+#include "WordleModel.h"
 
 int main()
 {
-    WordleGame wordleGameManager = WordleGame(FileGetter::GetAddressOfWordFile());
+    WordleGame wordleGameController = WordleGame(FileGetter::GetAddressOfWordFile());
     return 0;
 }
 
 WordleGame::WordleGame(const string& file)
 {
     setGameIsActive(true);
-    GameLoop(SetTargetWord(file));
+    while (gameIsActive)
+    {
+        model = new WordleModel();
+        GameLoop(SetTargetWord(file));
+        gameIsActive = RestartGame();
+    }
+}
+
+bool WordleGame::RestartGame()
+{
+    cout << "Press Y to restart";
+    char userPrompt;
+    cin >> userPrompt;
+    return toupper(userPrompt) == 'Y' ? true : false;
 }
 
 string WordleGame::SetTargetWord(const string& fileAddress) const
@@ -60,33 +74,30 @@ string WordleGame::SetTargetWord(const string& fileAddress) const
     return "";
 }
 
-void WordleGame::GameLoop(const string& targetWord)
+void WordleGame::GameLoop(const string& targetWord) const
 {
-    // TODO: Stop while loop if the player has 0 attempts left or gets the correct word
-
     while (getGameIsActive())
     {
         bool hasUserWon = true;
         for (int i = 0; i < WORD_SIZE; i++)
         {
-            if (getUserScoreCharFromArray(i) != 'G')
+            if (model->getUserScoreCharFromArray(i) != 'G')
             {
                 hasUserWon = false;
             }
         }
 
-        if (GetAttempts() == 0 || hasUserWon)
+        if (model->GetAttempts() == 0 || hasUserWon)
         {
-            PrintGameResults(targetWord, string(lettersGuessed.begin(), lettersGuessed.end()));
+            PrintGameResults(targetWord, model->getLettersGuessed());
             return;
         }
-        cout << targetWord << endl;
 
         cout << "Current Guessed Letters:" << endl;
-        PrintResults(lettersGuessed);
+        PrintResults(model->getLettersGuessed());
 
         cout << "Results:" << endl;
-        PrintResults(userScoreCard);
+        PrintResults(model->getUserScoreCard());
 
         bool isUserInputValid = false;
         string userInputtedWord;
@@ -102,14 +113,19 @@ void WordleGame::GameLoop(const string& targetWord)
             if (!isUserInputValid) cout << "Invalid input" << endl;
         }
 
-        ReduceAttempts();
+        model->ReduceAttempts();
 
         for (int i = 0; i < WORD_SIZE; i++)
         {
-            setGuessedCharToArray(i, userInputtedWord[i]);
+            model->setGuessedCharToArray(i, userInputtedWord[i]);
         }
 
-        targetWordData.clear();
+        vector<WordCharacterData>* wordCharacterData = model->getTargetWordData();
+
+        if (wordCharacterData != nullptr)
+        {
+            wordCharacterData->clear();
+        }
 
         for (int i = 0; i < static_cast<int>(targetWord.size()); i++)
         {
@@ -117,32 +133,34 @@ void WordleGame::GameLoop(const string& targetWord)
             data.character = targetWord[i];
             data.guessed = false;
             data.position = i;
-            targetWordData.push_back(data);
+            wordCharacterData->emplace_back(data);
         }
 
         for (int i = 0; i < WORD_SIZE; i++)
         {
             for (int j = 0; j < WORD_SIZE; j++)
             {
-                if (getGuessedCharFromArray(i) == targetWordData[j].character && i == targetWordData[j].position)
+                if (model->getGuessedCharFromArray(i) == wordCharacterData->at(j).character && i ==
+                    wordCharacterData->at(j).position)
                 // same letter and same position
                 {
-                    if (targetWordData[j].guessed)
+                    if (wordCharacterData->at(j).guessed)
                     {
-                        auto it = find(userScoreCard.begin(), userScoreCard.end(), 'A');
-                        if (it != userScoreCard.end()) *it = 'R';
+                        auto it = find(model->getUserScoreCard().begin(), model->getUserScoreCard().end(), 'A');
+                        if (it != model->getUserScoreCard().end()) *it = 'R';
                     }
-                    targetWordData[j].guessed = true;
-                    setUserScoreCharToArray(i, 'G');
+                    wordCharacterData->at(j).guessed = true;
+                    model->setUserScoreCharToArray(i, 'G');
                     break;
                 }
-                if (getGuessedCharFromArray(i) == targetWordData[j].character && !targetWordData[j].guessed)
+                if (model->getGuessedCharFromArray(i) == wordCharacterData->at(j).character &&
+                    !wordCharacterData->at(j).guessed)
                 {
-                    targetWordData[j].guessed = true;
-                    setUserScoreCharToArray(i, 'A');
+                    wordCharacterData->at(j).guessed = true;
+                    model->setUserScoreCharToArray(i, 'A');
                     break;
                 }
-                setUserScoreCharToArray(i, 'R');
+                model->setUserScoreCharToArray(i, 'R');
             }
         }
     }
@@ -152,24 +170,24 @@ void WordleGame::PrintResults(const vector<char>& letters)
 {
     for (int i = 0; i < WORD_SIZE; i++)
     {
+        // 32 ASCII == ' '
         if (toupper(letters[i]) == 32) continue;
         cout << " [ " << letters[i] << " ] ";
     }
     cout << endl;
 }
 
-void WordleGame::PrintGameResults(const string& targetWord, const string& userGuessed)
+void WordleGame::PrintGameResults(const string& targetWord, const vector<char>& userGuessed)
 {
-    if (targetWord == userGuessed)
+    const string word(userGuessed.begin(), userGuessed.end());
+    if (targetWord == word)
     {
         cout << "You got the secret word!" << endl;
-        cout << "Your word" << " " << userGuessed << endl;
         cout << "Target word" << " " << targetWord << endl;
     }
     else
     {
         cout << "You failed :(" << endl;
-        cout << "Your word" << userGuessed << endl;
         cout << "Target word" << targetWord << endl;
     }
 }

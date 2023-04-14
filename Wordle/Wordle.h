@@ -3,41 +3,23 @@
 #include <string>
 #include <vector>
 
+#include "WordleModel.h"
+
 using namespace std;
 
 #define WORD_SIZE 5
 
-struct WordCharacterData
-{
-    char character;
-    bool guessed;
-    int position;
-};
-
 class WordleGame
 {
 private:
-    int attempts = 6;
     bool gameIsActive = false;
-
-    vector<char> lettersGuessed = {' ', ' ', ' ', ' ', ' ',};
-    vector<char> userScoreCard = {' ', ' ', ' ', ' ', ' ',};
-
-    vector<WordCharacterData> targetWordData;
-
+    
 public:
+    
     WordleGame(const string& file);
 
-    int GetAttempts() const
-    {
-        return attempts;
-    }
-
-    void ReduceAttempts()
-    {
-        attempts--;
-    }
-
+    WordleModel* model = nullptr;
+    
     bool getGameIsActive() const
     {
         return gameIsActive;
@@ -47,29 +29,10 @@ public:
     {
         gameIsActive = active;
     }
-
-    char getGuessedCharFromArray(const int& index) const
-    {
-        return lettersGuessed[index];
-    }
-
-    void setGuessedCharToArray(const int& index, const char& character)
-    {
-        lettersGuessed[index] = character;
-    }
-
-    char getUserScoreCharFromArray(const int& index) const
-    {
-        return userScoreCard[index];
-    }
-
-    void setUserScoreCharToArray(const int& index, const char& character)
-    {
-        userScoreCard[index] = character;
-    }
-
+    
     string SetTargetWord(const string& file) const;
-    void GameLoop(const string& targetWord);
+    void GameLoop(const string& targetWord) const;
     static void PrintResults(const vector<char>& letters);
-    static void PrintGameResults(const string& targetWord, const string& userGuessed);
+    static void PrintGameResults(const string& targetWord, const vector<char>& userGuessed);
+    static bool RestartGame();
 };

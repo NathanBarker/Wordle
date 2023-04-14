@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClInclude Include="FileGetter.h" />
     <ClInclude Include="Wordle.h" />
+    <ClInclude Include="WordleModel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
