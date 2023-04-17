@@ -77,7 +77,6 @@ string WordleGame::SetTargetWord(const string& fileAddress) const
 
 void WordleGame::GameLoop(const string& targetWord) const
 {
-    cout << targetWord << endl;
     while (getGameIsActive())
     {
         bool hasUserWon = true;
