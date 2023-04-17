@@ -13,13 +13,12 @@ class WordleGame
 {
 private:
     bool gameIsActive = false;
-    
+
 public:
-    
     WordleGame(const string& file);
 
     WordleModel* model = nullptr;
-    
+
     bool getGameIsActive() const
     {
         return gameIsActive;
@@ -29,10 +28,11 @@ public:
     {
         gameIsActive = active;
     }
-    
+
     string SetTargetWord(const string& file) const;
     void GameLoop(const string& targetWord) const;
-    static void PrintResults(const vector<char>& letters);
-    static void PrintGameResults(const string& targetWord, const vector<char>& userGuessed);
+
     static bool RestartGame();
+    static void PrintResults(const vector<userOutcomeData>& lettersData);
+    static void PrintGameResults(const string& targetWord, const vector<char>& userGuessed);
 };

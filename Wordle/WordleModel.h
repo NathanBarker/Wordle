@@ -4,10 +4,18 @@
 
 using namespace std;
 
-struct WordCharacterData
+struct AnswerCharacterData
 {
     char character;
-    bool guessed;
+    int position;
+    bool isRead;
+};
+
+struct userOutcomeData
+{
+    char character;
+    bool gotPosition;
+    bool gotCharacter;
     int position;
 };
 
@@ -17,16 +25,22 @@ private:
     int attempts = 6;
 
     vector<char> lettersGuessed = {' ', ' ', ' ', ' ', ' ',};
-    vector<char> userScoreCard = {' ', ' ', ' ', ' ', ' ',};
 
-    vector<WordCharacterData>* targetWordData = new vector<WordCharacterData>{
-        {' ', false, 0},
-        {' ', false, 1},
-        {' ', false, 2},
-        {' ', false, 3},
-        {' ', false, 4}
+    vector<AnswerCharacterData>* targetWordData = new vector<AnswerCharacterData>{
+        {' ', 0, false},
+        {' ', 1, false},
+        {' ', 2, false},
+        {' ', 3, false},
+        {' ', 4, false}
     };
 
+    vector<userOutcomeData>* outcomeData = new vector<userOutcomeData>{
+        {' ', false, false, 0},
+        {' ', false, false, 0},
+        {' ', false, false, 0},
+        {' ', false, false, 0},
+        {' ', false, false, 0}
+    };
 public:
     WordleModel() = default;
 
@@ -45,17 +59,17 @@ public:
         return lettersGuessed;
     }
 
-    vector<char>& getUserScoreCard()
-    {
-        return userScoreCard;
-    }
-
-    vector<WordCharacterData>* getTargetWordData() const
+    vector<AnswerCharacterData>* getAnswerData() const
     {
         return targetWordData;
     }
 
-    char getGuessedCharFromArray(const int& index) const
+    vector<userOutcomeData>* getOutcomeData() const
+    {
+        return outcomeData;
+    }
+
+    char getInputtedCharAtIndex(const int& index) const
     {
         return lettersGuessed[index];
     }
@@ -63,15 +77,5 @@ public:
     void setGuessedCharToArray(const int& index, const char& character)
     {
         lettersGuessed[index] = character;
-    }
-
-    char getUserScoreCharFromArray(const int& index) const
-    {
-        return userScoreCard[index];
-    }
-
-    void setUserScoreCharToArray(const int& index, const char& character)
-    {
-        userScoreCard[index] = character;
     }
 };
