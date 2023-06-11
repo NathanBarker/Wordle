@@ -10,6 +10,8 @@
 #include "Wordle.h"
 #include "WordleModel.h"
 
+// TODO: stop same character and same index instances from making blue characetes red then complete! :)
+
 int main()
 {
     WordleGame wordleGameController = WordleGame(FileGetter::GetAddressOfWordFile());
